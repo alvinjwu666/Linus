@@ -568,7 +568,7 @@ int main(){
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*) (2 * sizeof(float)));
 
-    namedWindow("w");
+    // namedWindow("w");
 
     cout << nRows << ' ' << nCols << '\n';
 
@@ -595,7 +595,7 @@ int main(){
             glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(float), crossPos, GL_DYNAMIC_DRAW);
             
             glUseProgram(crossPro);
-            if(GetKeyState('X') < 0)
+            if(GetKeyState('X') < 0 || GetKeyState('S') < 0 || GetKeyState('A') < 0)
                 glUseProgram(erasePro);
             glDrawArrays(GL_POINTS, 0, 1);
 
@@ -655,7 +655,7 @@ int main(){
         glBindBuffer(GL_ARRAY_BUFFER, mvb);
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-        imshow("w", *canvases[currentCanvasN]);
+        // imshow("w", *canvases[currentCanvasN]);
 
         
         while(GLenum err = glGetError()){
