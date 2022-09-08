@@ -112,6 +112,9 @@ void key_callback(GLFWwindow* win, int key, int scancode, int action, int mods){
 
 
 
+int *ctrx;
+int *ctry;
+
 
 bool getMousePos(Mat &m, int &px, int &py){
     // int xposs[nCols + 2], yposs[nRows + 2];
@@ -120,24 +123,25 @@ bool getMousePos(Mat &m, int &px, int &py){
     long long xposs = 0, yposs = 0;
     int tot = 0;
 
-    int ctrx[nRows + 5];
-    int ctry[nCols + 5];
+    // int ctry[nCols + 5];
+    // memset(ctrx, 0, sizeof(int) * (nRows + 4));
+    // memset(ctry, 0, sizeof(int) * (nCols + 4));
 
     int curPos = 0;
     uchar* p = m.data;
     for(int a = 0; a < nRows; a ++){
         for(int b = 0; b < nCols; b ++){
-            if(((int)p[0]) * 1.1 < (p[1]) && ((int) (p[2])) * 1.4 < (p[1]) && (p[1]) > 90){
-                p[0] = 0;
-                p[1] = 0;
-                p[2] =  255;
+            if(((int)p[0]) * 1 < (p[1]) && ((int) (p[2])) * 1.2 < (p[1]) && (p[1]) > 50){
+                // p[0] = 0;
+                // p[1] = 0;
+                // p[2] =  255;
 
                 xposs += b;
                 yposs += a;
                 tot ++;
 
-                ctrx[a] ++;
-                ctry[b] ++;
+                // ctrx[a] ++;
+                // ctry[b] ++;
             }else{
                 // p[0] = 0;
                 // p[1] = 0;
@@ -153,20 +157,22 @@ bool getMousePos(Mat &m, int &px, int &py){
     px = xposs / tot;
     py = yposs / tot;
 
-    int numberx = 0, numbery = 0;
-    int totalx = 0, totaly = 0;
-    int checksize = 80;
-    for(int a = max(0, px - checksize); a < min(px + checksize, nRows); a ++){
-        totalx += a * ctrx[a];
-        numberx += ctrx[a];
-    }
+    // printf("%d %d\n", px, py);
+    // int numberx = 0, numbery = 0;
+    // long long totalx = 0, totaly = 0;
+    // int checksize = 80;
+    // for(int a = max(0, px - checksize); a < min(px + checksize, nRows); a ++){
+    //     totalx += a * ctrx[a];
+    //     numberx += ctrx[a];
+    // }
 
-    for(int a = max(0, py - checksize); a < min(py + checksize, nCols); a ++){
-        totaly += a * ctry[a];
-        numbery += ctry[a];
-    }
-    px = totalx / numberx;
-    py = totaly / numbery;
+    // for(int a = max(0, py - checksize); a < min(py + checksize, nCols); a ++){
+    //     totaly += a * ctry[a];
+    //     numbery += ctry[a];
+    // }
+    // px = totalx / numberx;
+    // py = totaly / numbery;
+    // printf("pxpy %d %d %d %d\n", px, py, numberx, numbery);
 
     return true;
 }
@@ -215,7 +221,8 @@ int main(){
     GLwindow = glfwCreateWindow(vm->width, vm->height, "Test Window", NULL, NULL);
     glfwMaximizeWindow(GLwindow);
 
-
+    ctrx = (int*) malloc((nRows + 5) * sizeof(int));
+    ctry = (int*) malloc((nCols + 5) * sizeof(int));
 
     if (!GLwindow){
         std::cout << "\nwindow load failed";
