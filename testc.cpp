@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <cstring>
+#include <math.h>
 
 #include <Windows.h>
 
@@ -119,11 +120,14 @@ bool getMousePos(Mat &m, int &px, int &py){
     long long xposs = 0, yposs = 0;
     int tot = 0;
 
+    int ctrx[nRows + 5];
+    int ctry[nCols + 5];
+
     int curPos = 0;
     uchar* p = m.data;
     for(int a = 0; a < nRows; a ++){
         for(int b = 0; b < nCols; b ++){
-            if(p[0] * 1.3 < (p[1]) && ((int) (p[2])) * 1.5 < (p[1]) && (p[1]) > 100){
+            if(((int)p[0]) * 1.1 < (p[1]) && ((int) (p[2])) * 1.4 < (p[1]) && (p[1]) > 90){
                 p[0] = 0;
                 p[1] = 0;
                 p[2] =  255;
@@ -131,16 +135,39 @@ bool getMousePos(Mat &m, int &px, int &py){
                 xposs += b;
                 yposs += a;
                 tot ++;
+
+                ctrx[a] ++;
+                ctry[b] ++;
+            }else{
+                // p[0] = 0;
+                // p[1] = 0;
+                // p[2] =  255;
             }
             p += 3;
         }
     }
     px = -1;
     py = -1;
-    if(tot < 3)
+    if(tot < 6)
         return false;
     px = xposs / tot;
     py = yposs / tot;
+
+    int numberx = 0, numbery = 0;
+    int totalx = 0, totaly = 0;
+    int checksize = 80;
+    for(int a = max(0, px - checksize); a < min(px + checksize, nRows); a ++){
+        totalx += a * ctrx[a];
+        numberx += ctrx[a];
+    }
+
+    for(int a = max(0, py - checksize); a < min(py + checksize, nCols); a ++){
+        totaly += a * ctry[a];
+        numbery += ctry[a];
+    }
+    px = totalx / numberx;
+    py = totaly / numbery;
+
     return true;
 }
 
@@ -185,7 +212,10 @@ int main(){
         return -1;
     }
     const GLFWvidmode* vm = glfwGetVideoMode(glfwGetPrimaryMonitor());
-    GLwindow = glfwCreateWindow(vm->width, vm->height, "Test Window", glfwGetPrimaryMonitor(), NULL);
+    GLwindow = glfwCreateWindow(vm->width, vm->height, "Test Window", NULL, NULL);
+    glfwMaximizeWindow(GLwindow);
+
+
 
     if (!GLwindow){
         std::cout << "\nwindow load failed";
@@ -213,8 +243,14 @@ int main(){
     mCols = canvases[0]->cols;
 
     VideoCapture cap(0);
-    cap.set(CAP_PROP_FRAME_HEIGHT, 750);
-    cap.set(CAP_PROP_FRAME_WIDTH, 1000);
+    cap.set(CAP_PROP_FRAME_WIDTH, 100000);
+    cap.set(CAP_PROP_FRAME_HEIGHT, 100000);
+    int maxwidth = static_cast<int>(cap.get(CAP_PROP_FRAME_WIDTH));
+    int maxheight = static_cast<int>(cap.get(CAP_PROP_FRAME_HEIGHT));
+    cap.set(CAP_PROP_FRAME_WIDTH, maxwidth);
+    cap.set(CAP_PROP_FRAME_HEIGHT, maxheight);
+    printf("wh %d %d\n\n", maxwidth, maxheight);
+    
 
     if (!cap.isOpened()){
         cout << "cannot open camera";
@@ -587,6 +623,9 @@ int main(){
         glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
         if(getMousePos(imgf, mx, my)){
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, nCols, nRows, 0, GL_BGR, GL_UNSIGNED_BYTE, imgf.data);
+            glGenerateMipmap(GL_TEXTURE_2D);
+            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             int pmx = mx, pmy = my;
             glBindVertexArray(crossVAO);
             glBindBuffer(GL_ARRAY_BUFFER, crossVB);
